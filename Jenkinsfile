@@ -2,16 +2,13 @@ pipeline {
     agent any
     
     environment {
-        // Replace with your Docker Hub username and roll number
         DOCKERHUB_USERNAME = 'dockeraisrh12'
         IMAGE_NAME = 'rollno-todo-cli'
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        // Correct credential IDs from your screenshot
         GITHUB_CREDS = credentials('Github-JenkinCreds')
         DOCKERHUB_CREDS = credentials('Docker-Jenkins')
 
-        // FULL PATH to Python (this fixes your entire pipeline)
         PYTHON = 'C:\\Users\\Aishwarya Sharma\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
     }
     
@@ -31,8 +28,9 @@ pipeline {
                 echo "Setting up Python virtual environment..."
                 bat """
                     "%PYTHON%" -m venv venv
-                    venv\\Scripts\\pip install --upgrade pip
-                    venv\\Scripts\\pip install -r requirements.txt
+                    venv\\Scripts\\python.exe -m pip install --upgrade pip
+                    venv\\Scripts\\python.exe -m pip install -r requirements.txt
+                    venv\\Scripts\\python.exe -m pip install pytest
                 """
             }
         }
@@ -41,7 +39,7 @@ pipeline {
             steps {
                 echo "Running Python tests..."
                 bat """
-                    venv\\Scripts\\pytest tests\\test_todo.py -v
+                    venv\\Scripts\\python.exe -m pytest tests\\test_todo.py -v
                 """
             }
         }
@@ -56,7 +54,7 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                echo "Logging into Docker Hub & pushing image..."
+                echo "Pushing Docker image..."
                 bat "docker login -u %DOCKERHUB_CREDS_USR% -p %DOCKERHUB_CREDS_PSW%"
                 bat "docker push %DOCKERHUB_USERNAME%/%IMAGE_NAME%:%IMAGE_TAG%"
                 bat "docker push %DOCKERHUB_USERNAME%/%IMAGE_NAME%:latest"
@@ -66,7 +64,6 @@ pipeline {
 
         stage('Verify Docker Image') {
             steps {
-                echo "Verifying Docker image..."
                 bat "docker images | findstr %IMAGE_NAME%"
             }
         }
@@ -75,13 +72,11 @@ pipeline {
     post {
         success {
             echo "✓ Pipeline completed successfully!"
-            echo "Docker image pushed: %DOCKERHUB_USERNAME%/%IMAGE_NAME%:%IMAGE_TAG%"
         }
         failure {
             echo "✗ Pipeline failed!"
         }
         always {
-            echo "Cleaning workspace..."
             cleanWs()
         }
     }
