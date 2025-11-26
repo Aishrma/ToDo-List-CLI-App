@@ -8,6 +8,6 @@
 # - datetime
 
 # Testing (optional, for running tests)
-# pytest>=7.4.0
+pytest>=7.4.0
 
 # If you want to use pytest instead of unittest, uncomment above
