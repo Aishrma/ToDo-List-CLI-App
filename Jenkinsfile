@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKERHUB_USERNAME = 'dockeraisrh12'
+        DOCKERHUB_USERNAME = 'dockeraish12'
         IMAGE_NAME = 'rollno-todo-cli'
         IMAGE_TAG = "${BUILD_NUMBER}"
 
