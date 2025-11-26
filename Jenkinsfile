@@ -2,18 +2,17 @@ pipeline {
     agent any
     
     environment {
-        // TODO: Replace with your Docker Hub username
-        DOCKERHUB_USERNAME = 'dockeraish12'
-        
-        // TODO: Replace with your roll number image name
+        // Replace with your Docker Hub username and roll number
+        DOCKERHUB_USERNAME = 'dockeraisrh12'
         IMAGE_NAME = 'rollno-todo-cli'
-        
-        // Tag each build uniquely
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        // Correct Jenkins credential IDs
+        // Correct credential IDs from your screenshot
         GITHUB_CREDS = credentials('Github-JenkinCreds')
         DOCKERHUB_CREDS = credentials('Docker-Jenkins')
+
+        // FULL PATH to Python (this fixes your entire pipeline)
+        PYTHON = 'C:\\Users\\Aishwarya Sharma\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
     }
     
     stages {
@@ -30,20 +29,20 @@ pipeline {
         stage('Build - Install Dependencies') {
             steps {
                 echo "Setting up Python virtual environment..."
-                bat '''
-                    python -m venv venv
+                bat """
+                    "%PYTHON%" -m venv venv
                     venv\\Scripts\\pip install --upgrade pip
                     venv\\Scripts\\pip install -r requirements.txt
-                '''
+                """
             }
         }
 
         stage('Run Tests') {
             steps {
                 echo "Running Python tests..."
-                bat '''
+                bat """
                     venv\\Scripts\\pytest tests\\test_todo.py -v
-                '''
+                """
             }
         }
 
@@ -67,7 +66,7 @@ pipeline {
 
         stage('Verify Docker Image') {
             steps {
-                echo "Verifying pushed Docker image..."
+                echo "Verifying Docker image..."
                 bat "docker images | findstr %IMAGE_NAME%"
             }
         }
